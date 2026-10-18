@@ -1,0 +1,27 @@
+server:
+  port: ${PORT:8082}
+  forward-headers-strategy: framework
+spring:
+  application:
+    name: sync-service
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/medicalfield}
+    username: ${DATABASE_USER:medicalfield_app}
+    password: ${DATABASE_PASSWORD:change-me}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: file:${JWT_PUBLIC_KEY_PATH:../auth-service/secrets/jwt-public.pem}
+medicalfield:
+  jwt:
+    issuer: ${JWT_ISSUER:medicalfield-auth}
+    audience: ${JWT_AUDIENCE:medicalfield-services}
+  services:
+    patients: ${PATIENT_SERVICE_URL:http://127.0.0.1:8081}
+    records: ${MEDICAL_RECORD_SERVICE_URL:http://127.0.0.1:3001}
+    medications: ${MEDICATION_SERVICE_URL:http://127.0.0.1:8002}
+

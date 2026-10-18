@@ -1,0 +1,20 @@
+[Unit]
+Description=MedicalField Authentication API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=medicalfield
+Group=medicalfield
+WorkingDirectory=/opt/medicalfield/app/backend/auth-service
+EnvironmentFile=/opt/medicalfield/env/medicalfield.env
+ExecStart=/opt/medicalfield/app/backend/auth-service/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/medicalfield
+
+[Install]
+WantedBy=multi-user.target

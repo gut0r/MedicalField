@@ -1,0 +1,77 @@
+{
+  "info": {
+    "_postman_id": "2f1cb593-54b0-47c8-af5f-b20f18c21d1f",
+    "name": "MedicalField",
+    "description": "Testes manuais das seis APIs. Execute Login primeiro; nenhuma senha ou token é salvo no repositório.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+  "item": [
+    {
+      "name": "1 - Autenticação",
+      "item": [
+        {
+          "name": "Login",
+          "auth": { "type": "noauth" },
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"device_id\": \"{{deviceId}}\",\n  \"device_name\": \"Postman\"\n}" }, "url": "{{authUrl}}/auth/login", "description": "Única rota pública de negócio." },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Login retorna 200', () => pm.response.to.have.status(200));", "const body = pm.response.json();", "pm.expect(body.access_token).to.be.a('string');", "pm.environment.set('accessToken', body.access_token);"] } }],
+          "response": [{ "name": "Exemplo 200", "originalRequest": { "method": "POST", "url": "{{authUrl}}/auth/login" }, "status": "OK", "code": 200, "_postman_previewlanguage": "json", "header": [{ "key": "Content-Type", "value": "application/json" }], "cookie": [], "body": "{\"access_token\":\"<jwt>\",\"token_type\":\"bearer\",\"professional\":{\"id\":\"<uuid>\",\"roles\":[\"ADMIN\"]}}" }]
+        },
+        { "name": "Minha identidade", "request": { "method": "GET", "url": "{{authUrl}}/auth/me" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Identidade autenticada', () => pm.response.to.have.status(200));"] } }] },
+        { "name": "Listar profissionais", "request": { "method": "GET", "url": "{{authUrl}}/professionals" } },
+        { "name": "Refresh por cookie", "auth": { "type": "noauth" }, "request": { "method": "POST", "url": "{{authUrl}}/auth/refresh" } },
+        { "name": "Logout", "request": { "method": "POST", "url": "{{authUrl}}/auth/logout" } },
+        { "name": "Negativo - sem token", "auth": { "type": "noauth" }, "request": { "method": "GET", "url": "{{authUrl}}/auth/me" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Sem token retorna 401', () => pm.response.to.have.status(401));"] } }] }
+      ]
+    },
+    {
+      "name": "2 - Pacientes",
+      "item": [
+        { "name": "Listar/pesquisar", "request": { "method": "GET", "url": "{{patientUrl}}/patients?search=&includeInactive=false&page=0&size=50" } },
+        { "name": "Detalhar", "request": { "method": "GET", "url": "{{patientUrl}}/patients/{{patientId}}" } },
+        { "name": "Criar idempotente", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"fullName\": \"Paciente Postman\",\n  \"identificationStatus\": \"PROVISIONAL\",\n  \"notes\": \"Cadastro de teste\"\n}" }, "url": "{{patientUrl}}/patients" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Paciente criado', () => pm.response.to.have.status(201));", "pm.environment.set('patientId', pm.response.json().id);"] } }] },
+        { "name": "Atualizar com versão", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Paciente Postman Atualizado\",\n  \"identificationStatus\": \"PROVISIONAL\",\n  \"notes\": \"Atualização auditável\",\n  \"baseVersion\": 1\n}" }, "url": "{{patientUrl}}/patients/{{patientId}}" } },
+        { "name": "Inativar (ADMIN)", "request": { "method": "DELETE", "url": "{{patientUrl}}/patients/{{patientId}}" } },
+        { "name": "Negativo - token inválido", "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "token-invalido", "type": "string" }] }, "request": { "method": "GET", "url": "{{patientUrl}}/patients" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Token inválido retorna 401', () => pm.response.to.have.status(401));"] } }] }
+      ]
+    },
+    {
+      "name": "3 - Prontuários e Atendimentos",
+      "item": [
+        { "name": "Listar prontuários", "request": { "method": "GET", "url": "{{recordUrl}}/medical-records" } },
+        { "name": "Criar prontuário", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"patientId\": \"{{patientId}}\"\n}" }, "url": "{{recordUrl}}/medical-records" }, "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) pm.environment.set('recordId', pm.response.json().id);"] } }] },
+        { "name": "Listar atendimentos", "request": { "method": "GET", "url": "{{recordUrl}}/encounters?limit=200" } },
+        { "name": "Detalhar atendimento", "request": { "method": "GET", "url": "{{recordUrl}}/encounters/{{encounterId}}" } },
+        { "name": "Criar atendimento Glasgow", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"id\": \"{{$guid}}\",\n  \"medicalRecordId\": \"{{recordId}}\",\n  \"patientId\": \"{{patientId}}\",\n  \"occurredAt\": \"2026-10-13T20:00:00-03:00\",\n  \"occurrenceType\": \"Queda\",\n  \"description\": \"Atendimento criado pelo Postman\",\n  \"vitalSigns\": [{\"measuredAt\":\"2026-10-13T20:01:00-03:00\",\"heartRate\":88,\"oxygenSaturation\":97}],\n  \"assessments\": [{\"protocol\":\"GLASGOW\",\"assessedAt\":\"2026-10-13T20:02:00-03:00\",\"eyeScore\":4,\"verbalScore\":5,\"motorScore\":6}],\n  \"medications\": [],\n  \"procedures\": []\n}" }, "url": "{{recordUrl}}/encounters" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Atendimento criado', () => pm.response.to.have.status(201));", "pm.environment.set('encounterId', pm.response.json().id);"] } }] },
+        { "name": "Correção auditável", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"entityType\": \"ENCOUNTER\",\n  \"entityId\": \"{{encounterId}}\",\n  \"reason\": \"Correção de descrição solicitada pelo profissional\",\n  \"previousValue\": {\"description\":\"Anterior\"},\n  \"correctedValue\": {\"description\":\"Corrigida\"}\n}" }, "url": "{{recordUrl}}/encounters/{{encounterId}}/corrections" } }
+      ]
+    },
+    {
+      "name": "4 - Medicamentos",
+      "item": [
+        { "name": "Listar", "request": { "method": "GET", "url": "{{medicationUrl}}/medications?include_inactive=false" } },
+        { "name": "Detalhar", "request": { "method": "GET", "url": "{{medicationUrl}}/medications/{{medicationId}}" } },
+        { "name": "Criar (ADMIN)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Medicamento Postman\",\n  \"active_ingredient\": \"Substância de demonstração\",\n  \"pharmaceutical_form\": \"Solução\",\n  \"concentration\": \"10 mg/mL\",\n  \"unit\": \"mL\"\n}" }, "url": "{{medicationUrl}}/medications" }, "event": [{ "listen": "test", "script": { "exec": ["if (pm.response.code === 201) pm.environment.set('medicationId', pm.response.json().id);"] } }] },
+        { "name": "Atualizar (ADMIN)", "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"name\":\"Medicamento Postman\",\"active_ingredient\":\"Substância de demonstração\",\"pharmaceutical_form\":\"Solução\",\"concentration\":\"20 mg/mL\",\"unit\":\"mL\",\"base_version\":1}" }, "url": "{{medicationUrl}}/medications/{{medicationId}}" } },
+        { "name": "Feed de medicamentos", "request": { "method": "GET", "url": "{{medicationUrl}}/medication-changes?cursor=0&limit=20" } },
+        { "name": "Inativar (ADMIN)", "request": { "method": "DELETE", "url": "{{medicationUrl}}/medications/{{medicationId}}" } }
+      ]
+    },
+    {
+      "name": "5 - Sincronização e Auditoria",
+      "item": [
+        { "name": "Download incremental", "request": { "method": "GET", "url": "{{syncUrl}}/sync/download?cursor=0&limit=200" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Download válido', () => pm.response.to.have.status(200));", "pm.expect(pm.response.json()).to.have.property('nextCursor');"] } }] },
+        { "name": "Upload idempotente", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"operations\": [{\n    \"operationId\": \"60000000-0000-4000-8000-000000000001\",\n    \"entityId\": \"60000000-0000-4000-8000-000000000002\",\n    \"entityType\": \"OFFLINE_AUDIT\",\n    \"action\": \"CREATE\",\n    \"occurredAt\": \"2026-10-13T20:00:00Z\",\n    \"payload\": {\"eventType\":\"POSTMAN_TEST\",\"entityType\":\"TEST\"}\n  }]\n}" }, "url": "{{syncUrl}}/sync/upload" } },
+        { "name": "Repetir upload", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"deviceId\":\"{{deviceId}}\",\"operations\":[{\"operationId\":\"60000000-0000-4000-8000-000000000001\",\"entityId\":\"60000000-0000-4000-8000-000000000002\",\"entityType\":\"OFFLINE_AUDIT\",\"action\":\"CREATE\",\"occurredAt\":\"2026-10-13T20:00:00Z\",\"payload\":{\"eventType\":\"POSTMAN_TEST\",\"entityType\":\"TEST\"}}]}" }, "url": "{{syncUrl}}/sync/upload" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('Repetição não duplica', () => pm.expect(pm.response.json().results[0].status).to.eql('ALREADY_PROCESSED'));"] } }] },
+        { "name": "Logs (ADMIN)", "request": { "method": "GET", "url": "{{syncUrl}}/audit/logs?page=0&size=50" } }
+      ]
+    },
+    {
+      "name": "6 - Documentos",
+      "item": [
+        { "name": "Gerar PDF", "request": { "method": "GET", "url": "{{documentUrl}}/encounters/{{encounterId}}/pdf" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('PDF real', () => { pm.response.to.have.status(200); pm.expect(pm.response.headers.get('Content-Type')).to.include('application/pdf'); });"] } }] },
+        { "name": "Enviar PDF por e-mail", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"recipient\":\"destinatario@example.com\"}" }, "url": "{{documentUrl}}/encounters/{{encounterId}}/email" }, "description": "Troque por um destinatário real. 200 significa aceitação SMTP, não entrega final." }
+      ]
+    }
+  ]
+}

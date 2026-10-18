@@ -1,0 +1,29 @@
+server:
+  port: ${PORT:8081}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: patient-service
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/medicalfield}
+    username: ${DATABASE_USER:medicalfield_app}
+    password: ${DATABASE_PASSWORD:change-me}
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: file:${JWT_PUBLIC_KEY_PATH:../auth-service/secrets/jwt-public.pem}
+
+medicalfield:
+  jwt:
+    issuer: ${JWT_ISSUER:medicalfield-auth}
+    audience: ${JWT_AUDIENCE:medicalfield-services}
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} %-5level [%X{requestId:-}] %logger{36} - %msg%n"
+

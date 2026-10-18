@@ -1,0 +1,26 @@
+[project]
+name = "medicalfield-auth-service"
+version = "0.1.0"
+description = "Serviço de identidade e autenticação do MedicalField"
+requires-python = ">=3.13,<3.16"
+dependencies = [
+  "argon2-cffi>=25.1,<26",
+  "cryptography>=46,<47",
+  "fastapi>=0.119,<1",
+  "psycopg[binary,pool]>=3.2,<4",
+  "pydantic-settings>=2.11,<3",
+  "pyjwt[crypto]>=2.10,<3",
+  "uvicorn[standard]>=0.37,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<9",
+  "pytest-cov>=7,<8",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+

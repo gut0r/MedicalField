@@ -1,0 +1,41 @@
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node.js / front-end
+node_modules/
+dist/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Java
+target/
+.gradle/
+*.class
+
+# IDE / sistema operacional
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Arquivos gerados pela aplicação
+*.log
+generated-documents/
+deployment/api-docs/openapi.json
+.tools/
+.m2/
+

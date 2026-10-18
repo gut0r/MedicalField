@@ -1,0 +1,21 @@
+[Unit]
+Description=MedicalField Medical Record API
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=medicalfield
+Group=medicalfield
+WorkingDirectory=/opt/medicalfield/app/backend/medical-record-service
+EnvironmentFile=/opt/medicalfield/env/medicalfield.env
+Environment=PORT=3001
+ExecStart=/usr/bin/node --max-old-space-size=128 src/server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/medicalfield
+
+[Install]
+WantedBy=multi-user.target

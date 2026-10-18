@@ -1,0 +1,23 @@
+[Unit]
+Description=MedicalField Synchronization API
+After=network.target postgresql.service medicalfield-patients.service medicalfield-records.service medicalfield-medications.service
+
+[Service]
+Type=simple
+User=medicalfield
+Group=medicalfield
+WorkingDirectory=/opt/medicalfield/app/backend/sync-service
+EnvironmentFile=/opt/medicalfield/env/medicalfield.env
+Environment=PORT=8082
+Environment=SPRINGDOC_SWAGGER_UI_CONFIG_URL=/api/sync/v3/api-docs/swagger-config
+Environment=SPRINGDOC_SWAGGER_UI_URL=/api/sync/v3/api-docs
+ExecStart=/usr/bin/java -Xms48m -Xmx192m -XX:+UseSerialGC -jar target/sync-service-0.1.0.jar
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/medicalfield
+
+[Install]
+WantedBy=multi-user.target
