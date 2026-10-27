@@ -69,6 +69,26 @@ export const openApi = {
         },
       },
     },
+    '/medical-records/{id}/pdf': {
+      get: {
+        summary: 'Gera o prontuário consolidado em PDF',
+        parameters: [{ $ref: '#/components/parameters/MedicalRecordId' }],
+        responses: {
+          200: {
+            description: 'PDF consolidado gerado sob demanda',
+            content: {
+              'application/pdf': {
+                schema: { type: 'string', format: 'binary' },
+              },
+            },
+          },
+          401: { description: 'Token ausente ou invalido' },
+          403: { description: 'Perfil sem permissao' },
+          404: { description: 'Prontuario ou paciente nao encontrado' },
+          502: { description: 'Falha de integracao' },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -80,6 +100,13 @@ export const openApi = {
         in: 'path',
         required: true,
         description: 'UUID do atendimento',
+        schema: { type: 'string', format: 'uuid' },
+      },
+      MedicalRecordId: {
+        name: 'id',
+        in: 'path',
+        required: true,
+        description: 'UUID do prontuario',
         schema: { type: 'string', format: 'uuid' },
       },
     },

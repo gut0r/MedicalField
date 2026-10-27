@@ -77,6 +77,7 @@ Swagger: `/swagger-ui/index.html`; OpenAPI: `/v3/api-docs`.
 |---|---|---|
 | GET | `/encounters/{id}/pdf` | PDF sob demanda, `application/pdf` |
 | POST | `/encounters/{id}/email` | valida endereço e aguarda aceitação SMTP |
+| GET | `/medical-records/{id}/pdf` | PDF consolidado do prontuário e de seus atendimentos |
 
 Swagger: `/docs`; OpenAPI: `/openapi.json`.
 

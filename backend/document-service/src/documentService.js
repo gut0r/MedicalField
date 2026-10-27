@@ -3,6 +3,7 @@ import { config } from './config.js';
 import { pool } from './db.js';
 import { authenticatedJson } from './http.js';
 import { buildAttendancePdf } from './pdf/attendancePdf.js';
+import { buildMedicalRecordPdf } from './pdf/medicalRecordPdf.js';
 
 export class DocumentService {
   constructor(mailGateway) { this.mailGateway = mailGateway; }
@@ -13,6 +14,21 @@ export class DocumentService {
     const pdf = await buildAttendancePdf({ encounter, patient, issuer });
     await this.#event(encounterId, issuer, 'GENERATED');
     return { pdf, encounter, patient };
+  }
+
+  async loadRecordAndBuild(recordId, token, issuer) {
+    const record = await authenticatedJson(`${config.medicalRecordServiceUrl}/medical-records/${recordId}`, token);
+    const patient = await authenticatedJson(`${config.patientServiceUrl}/patients/${record.patientId}`, token);
+    const summaries = await authenticatedJson(
+      `${config.medicalRecordServiceUrl}/encounters?medicalRecordId=${encodeURIComponent(recordId)}&limit=500`,
+      token,
+    );
+    const encounters = await Promise.all(summaries.map((item) => authenticatedJson(
+      `${config.medicalRecordServiceUrl}/encounters/${item.id}`,
+      token,
+    )));
+    const pdf = await buildMedicalRecordPdf({ record, patient, encounters, issuer });
+    return { pdf, record, patient, encounters };
   }
 
   async send(encounterId, recipient, token, professionalId) {

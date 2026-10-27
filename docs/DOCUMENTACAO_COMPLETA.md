@@ -318,6 +318,7 @@ Todas as rotas de negócio utilizam o prefixo público `/api`. Com exceção do 
 |---|---|---|
 | GET | `/api/documents/encounters/{id}/pdf` | Gera o PDF de um atendimento |
 | POST | `/api/documents/encounters/{id}/email` | Envia o PDF do atendimento por e-mail |
+| GET | `/api/documents/medical-records/{id}/pdf` | Gera o PDF consolidado de um prontuário |
 
 ## 8.7 Códigos HTTP principais
 

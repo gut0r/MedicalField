@@ -138,7 +138,7 @@ Implante uma release em diretório versionado, compile, aplique migrations aditi
 - chaves JWT RSA 3072 geradas em `/opt/medicalfield/secrets`, fora do repositório;
 - seis units habilitadas e respondendo nos respectivos `/internal/health`;
 - Portal publicado em `http://177.44.248.61/` e cliente de campo em `/field/`;
-- Swagger unificado publicado em `http://177.44.248.61/documentation/`, com 21 caminhos agrupados por serviço e protegido pela credencial HTTP da documentação;
+- Swagger unificado publicado em `http://177.44.248.61/documentation/`, com 22 caminhos agrupados por serviço e protegido pela credencial HTTP da documentação;
 - a política de `sudo` da VM proíbe criar usuários. Por isso, apenas nessa VM, as units executam como `univates`; os templates permanecem com o usuário dedicado `medicalfield` recomendado para servidores sem essa restrição;
 - o sistema reporta reinicialização pendente para ativar o kernel instalado. Planeje uma janela, reinicie e repita os seis health checks.
 

@@ -51,14 +51,35 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function downloadPdf(encounterId: string): Promise<void> {
+async function openPdf(path: string, errorMessage: string): Promise<void> {
   const headers = new Headers();
   headers.set(CLIENT_HEADER, CLIENT_NAME);
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-  const response = await fetch(`${API}/documents/encounters/${encounterId}/pdf`, { headers, credentials: 'include' });
-  if (!response.ok) throw new ApiError(response.status, 'Não foi possível gerar a ficha');
+  let response = await fetch(`${API}${path}`, { headers, credentials: 'include' });
+  if (response.status === 401) {
+    const refreshed = await fetch(`${API}/auth/refresh`, {
+      method: 'POST',
+      headers: { [CLIENT_HEADER]: CLIENT_NAME },
+      credentials: 'include',
+    });
+    if (refreshed.ok) {
+      const data = await refreshed.json();
+      setAccessToken(data.access_token);
+      headers.set('Authorization', `Bearer ${data.access_token}`);
+      response = await fetch(`${API}${path}`, { headers, credentials: 'include' });
+    }
+  }
+  if (!response.ok) throw new ApiError(response.status, errorMessage);
   const url = URL.createObjectURL(await response.blob());
   window.open(url, '_blank', 'noopener,noreferrer');
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+export function downloadPdf(encounterId: string): Promise<void> {
+  return openPdf(`/documents/encounters/${encounterId}/pdf`, 'Não foi possível gerar a ficha');
+}
+
+export function downloadMedicalRecordPdf(recordId: string): Promise<void> {
+  return openPdf(`/documents/medical-records/${recordId}/pdf`, 'Não foi possível gerar o prontuário');
 }
 

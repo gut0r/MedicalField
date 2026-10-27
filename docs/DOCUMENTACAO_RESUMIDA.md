@@ -136,6 +136,7 @@ As APIs usam o prefixo `/api`. Com exceção do login e da renovação da sessã
 - `DELETE /api/audit/logs`: limpa os logs;
 - `GET /api/documents/encounters/{id}/pdf`: gera o PDF;
 - `POST /api/documents/encounters/{id}/email`: envia o PDF por e-mail.
+- `GET /api/documents/medical-records/{id}/pdf`: gera o PDF consolidado do prontuário.
 
 Os códigos mais comuns são `200` para sucesso, `201` para criação, `204` para sucesso sem conteúdo, `401` para falha de autenticação, `403` para falta de permissão, `404` para registro inexistente, `409` para conflito e `422` para dados inválidos.
 

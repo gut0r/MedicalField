@@ -33,6 +33,17 @@ app.get('/encounters/:id/pdf', async (req, res) => {
   }).send(pdf);
 });
 
+app.get('/medical-records/:id/pdf', async (req, res) => {
+  const recordId = z.string().uuid().parse(req.params.id);
+  const { pdf, record } = await documents.loadRecordAndBuild(recordId, req.token, req.principal.professionalId);
+  res.set({
+    'Content-Type': 'application/pdf',
+    'Content-Disposition': `inline; filename="prontuario-${record.recordNumber ?? recordId}.pdf"`,
+    'Content-Length': String(pdf.length),
+    'Cache-Control': 'no-store',
+  }).send(pdf);
+});
+
 app.post('/encounters/:id/email', async (req, res) => {
   const encounterId = z.string().uuid().parse(req.params.id);
   const { recipient } = z.object({ recipient: z.email().max(254) }).parse(req.body);
