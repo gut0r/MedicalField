@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(username: string, password: string) {
     const result = await api<{ access_token: string; offline_grant: string; offline_grant_expires_at: string; professional: Professional }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ username, password, device_id: deviceId(), device_name: `PWA ${navigator.platform}`.slice(0, 120) }),
+      body: JSON.stringify({ username, password, device_id: deviceId(), device_name: `${window.medicalFieldDesktop ? 'Desktop' : 'PWA'} ${navigator.platform}`.slice(0, 120) }),
     });
     setAccessToken(result.access_token);
     if (isOfflineSecurityAvailable()) {

@@ -13,7 +13,7 @@ const links = [
 export function Layout() {
   const { professional, logout } = useAuth();
   const [open, setOpen] = useState(false);
-  const fieldClientUrl = import.meta.env.VITE_FIELD_CLIENT_URL ?? 'http://localhost:8080/field/';
+  const fieldClientUrl = import.meta.env.VITE_FIELD_CLIENT_URL ?? 'medicalfield://open';
   return <div className="min-h-screen bg-slate-50">
     <header className="fixed inset-x-0 top-0 z-30 flex h-16 items-center justify-between border-b bg-white px-4 lg:pl-72">
       <button className="lg:hidden" onClick={() => setOpen(!open)} aria-label="Abrir menu">{open ? <X /> : <Menu />}</button>
@@ -25,7 +25,7 @@ export function Layout() {
       <nav className="space-y-1 p-3">{links.map(([to, label, Icon]) => <NavLink key={to} to={to} end={to === '/'} target={to === '/admin/logs' ? '_blank' : undefined}
         className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm ${isActive ? 'bg-teal-700' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`} onClick={() => setOpen(false)}>
         <Icon size={18} />{label}</NavLink>)}</nav>
-      <div className="absolute bottom-4 inset-x-3"><a className="btn w-full bg-slate-800 text-white hover:bg-slate-700" href={fieldClientUrl} target="_blank" rel="noreferrer" title="Abre o cliente seguro pelo túnel local">Abrir Cliente do Socorrista</a></div>
+      <div className="absolute bottom-4 inset-x-3"><a className="btn w-full bg-slate-800 text-white hover:bg-slate-700" href={fieldClientUrl} title="Abre o aplicativo instalado neste computador">Abrir Cliente do Socorrista</a></div>
     </aside>
     <main className="pt-20 lg:pl-64"><div className="mx-auto max-w-7xl p-4 lg:p-8"><Outlet /></div></main>
   </div>;

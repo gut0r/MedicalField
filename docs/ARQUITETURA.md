@@ -2,14 +2,16 @@
 
 ## Visão geral
 
-O sistema separa o ambiente central da execução local do socorrista. A VM hospeda Portal, APIs e PostgreSQL. A PWA é baixada uma vez, instalada no computador e passa a usar Service Worker e IndexedDB; sua gravação clínica não depende da VM.
+O sistema separa o ambiente central da execução local do socorrista. A VM hospeda Portal, APIs e PostgreSQL. O cliente React pode ser instalado como PWA ou empacotado em uma janela Electron. Em ambos os casos, Service Worker e IndexedDB ficam no computador; a gravação clínica não depende da VM.
 
 ```mermaid
 flowchart LR
   subgraph Dispositivo[Computador do socorrista]
-    PWA[Cliente PWA]
+    APP[Aplicativo Electron]
+    PWA[Cliente React/PWA]
     SW[Service Worker]
     IDB[(IndexedDB)]
+    APP --> PWA
     PWA --> SW
     PWA --> IDB
   end

@@ -41,7 +41,7 @@ O Cliente do Socorrista permite realizar login, baixar os dados necessários par
 
 # 4. Arquitetura
 
-O projeto utiliza microsserviços junto com o modelo Offline-First. Na VM estão o Portal Administrativo, os seis serviços de backend, o banco PostgreSQL, o Nginx e a documentação Swagger. No dispositivo do socorrista, o Cliente PWA usa Service Worker e IndexedDB para continuar funcionando offline.
+O projeto utiliza microsserviços junto com o modelo Offline-First. Na VM estão o Portal Administrativo, os seis serviços de backend, o banco PostgreSQL, o Nginx e a documentação Swagger. No dispositivo do socorrista, o cliente React é empacotado em uma janela Electron e usa Service Worker e IndexedDB para continuar funcionando offline. A PWA web permanece como alternativa.
 
 O Nginx é o ponto de entrada público. Ele entrega os frontends e encaminha as requisições iniciadas por `/api` ao microsserviço responsável.
 
@@ -60,7 +60,7 @@ O Nginx é o ponto de entrada público. Ele entrega os frontends e encaminha as 
 | Sync Service | Upload, download, idempotência e conflitos | Java e Spring Boot |
 | Document Service | Geração de PDF e envio de e-mail | Node.js e Express |
 | Portal Administrativo | Administração dos dados centrais | React e TypeScript |
-| Cliente do Socorrista | Operação online e offline | React, TypeScript e PWA |
+| Cliente do Socorrista | Operação online e offline em janela local | React, TypeScript, Electron e PWA |
 | Banco central | Persistência dos dados compartilhados | PostgreSQL |
 | Banco local | Persistência no dispositivo | IndexedDB e Dexie |
 
@@ -194,7 +194,7 @@ O Document Service consulta os dados do atendimento e usa PDFKit para gerar o do
 
 O sistema está implantado em uma VM Ubuntu. Os seis microsserviços são mantidos pelo systemd e aceitam conexões apenas internamente. O Nginx é o componente exposto e atua como proxy reverso.
 
-No ambiente de demonstração, o Portal Administrativo está disponível na raiz do servidor, o Cliente do Socorrista em `/field/` e o Swagger em `/documentation/`. Um túnel SSH pode encaminhar o sistema para `http://localhost:8080/field/`, permitindo apresentar a PWA em uma origem local confiável.
+No ambiente de demonstração, o Portal Administrativo está disponível na raiz do servidor, o Swagger em `/documentation/` e o Cliente do Socorrista é aberto pelo protocolo `medicalfield://`. O aplicativo serve seus próprios arquivos somente em loopback, mantém o IndexedDB no computador e encaminha `/api` para a VM. A publicação web em `/field/` permanece como contingência.
 
 # 12. Testes
 

@@ -16,6 +16,7 @@ O repositório contém um Portal Administrativo, um Cliente PWA instalável, Pos
 | Documentos | Node.js 22+, Express, PDFKit, Nodemailer | 3002 |
 | Portal administrativo | React, TypeScript, Vite | 5173 |
 | Cliente de campo | React, TypeScript, Vite, Dexie/PWA | 5174 |
+| Aplicativo do socorrista | Electron; empacota o cliente e mantém o IndexedDB local | 47831 (somente loopback) |
 
 ## Requisitos
 
@@ -49,15 +50,11 @@ Os testes oficiais estão em [docs/ROTEIRO_TESTES.md](docs/ROTEIRO_TESTES.md). A
 
 O Portal está publicado provisoriamente em `http://177.44.248.61/` e o cliente de campo em `http://177.44.248.61/field/`. Esse acesso por IP serve para homologação do Portal e das APIs; a instalação confiável da PWA continua condicionada a domínio e HTTPS. Os seis serviços executam somente em loopback, sob systemd, com Nginx como único ponto de entrada.
 
-### Cliente de campo via localhost para demonstração
+### Aplicativo local do socorrista
 
-Antes de abrir o Portal, mantenha este túnel SSH em execução no computador da apresentação:
+O cliente também pode ser empacotado como aplicativo Windows pela pasta `desktop/field-client`. O aplicativo inclui os arquivos do frontend, abre em uma janela própria, mantém o IndexedDB no computador e encaminha somente as chamadas `/api` para a VM. O botão **Abrir Cliente do Socorrista** usa o protocolo `medicalfield://` registrado pelo executável, portanto não depende de túnel ou terminal aberto.
 
-```powershell
-ssh -N -L 8080:127.0.0.1:80 univates@177.44.248.61
-```
-
-O botão **Abrir Cliente do Socorrista** abre `http://localhost:8080/field/` em uma nova aba. Como `localhost` é uma origem confiável para o navegador, a sessão offline criptografada e a PWA podem ser demonstradas mesmo antes da configuração do domínio HTTPS. Fechar o terminal encerra o túnel.
+O acesso web em `/field/` e o antigo túnel SSH continuam disponíveis apenas como contingência.
 
 A documentação OpenAPI unificada fica em `http://177.44.248.61/documentation/`, protegida pela credencial HTTP de documentação.
 

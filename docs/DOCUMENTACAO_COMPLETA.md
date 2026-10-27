@@ -86,7 +86,7 @@ O Cliente do Socorrista permite:
 
 O MedicalField utiliza uma arquitetura de microsserviços combinada com o modelo Offline-First.
 
-Na VM ficam hospedados o Portal Administrativo, os seis microsserviços, o PostgreSQL, o Nginx e a documentação Swagger. No computador do socorrista, o Cliente PWA utiliza Service Worker e IndexedDB para funcionar offline.
+Na VM ficam hospedados o Portal Administrativo, os seis microsserviços, o PostgreSQL, o Nginx e a documentação Swagger. No computador do socorrista, o cliente React é empacotado em uma janela Electron e utiliza Service Worker e IndexedDB para funcionar offline. A PWA web permanece disponível como contingência.
 
 O Nginx é o único ponto de entrada público. Ele entrega os arquivos dos dois frontends e encaminha as chamadas iniciadas com `/api` para o microsserviço responsável.
 
@@ -103,7 +103,7 @@ O Nginx é o único ponto de entrada público. Ele entrega os arquivos dos dois 
 | Sync Service | Upload, download, idempotência, conflitos e auditoria | Java e Spring Boot | 8082 |
 | Document Service | Geração do PDF e envio por e-mail | Node.js, Express, PDFKit e Nodemailer | 3002 |
 | Portal Administrativo | Interface de administração | React e TypeScript | arquivos estáticos |
-| Cliente do Socorrista | Interface PWA online e offline | React, TypeScript, Dexie e Service Worker | arquivos estáticos |
+| Cliente do Socorrista | Aplicativo local online e offline | React, TypeScript, Electron, Dexie e Service Worker | 47831, somente loopback |
 | Banco central | Persistência dos dados centrais | PostgreSQL | 5432 |
 | Banco local | Persistência offline no dispositivo | IndexedDB | navegador |
 
@@ -158,7 +158,7 @@ Quando o dispositivo retorna ao modo Online, o profissional utiliza a tela de si
 - Brevo como servidor SMTP;
 - Git para controle de versão;
 - Ubuntu como sistema operacional da VM;
-- túnel SSH para disponibilizar o cliente em `localhost` durante a demonstração.
+- Electron para empacotar o cliente em uma janela local sem depender de túnel.
 
 # 6. Microsserviços
 
@@ -497,23 +497,17 @@ Os seis microsserviços são executados como serviços do systemd e escutam apen
 Endereços utilizados no ambiente de demonstração:
 
 - Portal Administrativo: `http://177.44.248.61/`;
-- Cliente publicado na VM: `http://177.44.248.61/field/`;
+- Cliente web de contingência: `http://177.44.248.61/field/`;
 - documentação Swagger: `http://177.44.248.61/documentation/`;
-- Cliente pela origem local confiável: `http://localhost:8080/field/`.
+- Aplicativo local: protocolo `medicalfield://` e servidor interno em `127.0.0.1:47831`.
 
-Para abrir o cliente em localhost durante a apresentação, utiliza-se um túnel SSH:
-
-```powershell
-ssh -N -L 8080:127.0.0.1:80 univates@177.44.248.61
-```
-
-Esse túnel encaminha a porta 8080 do computador para o Nginx da VM. Ele precisa permanecer aberto durante a demonstração.
+O executável fica instalado no computador do socorrista. Ele contém o build do frontend, registra `medicalfield://` e inicia um servidor restrito ao loopback. Somente as chamadas `/api` são encaminhadas para a VM; os dados offline permanecem no IndexedDB local.
 
 # 14. Testes realizados
 
 Foram realizados testes automatizados nos seis microsserviços e no Cliente do Socorrista.
 
-Na verificação mais recente, 29 testes automatizados foram executados com sucesso. Também foram gerados com sucesso os JARs dos serviços Java e os builds de produção dos dois frontends.
+Na verificação mais recente, 31 testes automatizados foram executados com sucesso, incluindo o servidor/proxy do aplicativo desktop. Também foram gerados com sucesso os JARs dos serviços Java, os builds de produção dos dois frontends e o executável Windows.
 
 As APIs foram testadas pela documentação Swagger, incluindo:
 
@@ -535,7 +529,7 @@ Também foram validados os fluxos online e offline do Cliente do Socorrista. No 
 
 # 15. Limitações e melhorias futuras
 
-- Configurar um domínio e HTTPS confiável para substituir o acesso provisório por IP e o túnel local;
+- Configurar um domínio e HTTPS confiável para proteger o acesso central por IP;
 - implementar rotinas institucionais de backup e restauração;
 - utilizar criptografia completa do disco nos dispositivos de campo;
 - implementar gerenciamento corporativo dos dispositivos;

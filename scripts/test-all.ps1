@@ -23,5 +23,6 @@ Push-Location (Join-Path $Root 'backend\sync-service'); try { Invoke-Checked -Ex
 Push-Location (Join-Path $Root 'backend\medical-record-service'); try { Invoke-Checked -Executable $Npm -CommandArgs @('test') } finally { Pop-Location }
 Push-Location (Join-Path $Root 'backend\document-service'); try { Invoke-Checked -Executable $Npm -CommandArgs @('test') } finally { Pop-Location }
 Push-Location (Join-Path $Root 'frontend\field-client'); try { Invoke-Checked -Executable $Npm -CommandArgs @('test') } finally { Pop-Location }
+Push-Location (Join-Path $Root 'desktop\field-client'); try { Invoke-Checked -Executable $Npm -CommandArgs @('test') } finally { Pop-Location }
 
 Write-Host 'Todos os testes unitários concluídos.' -ForegroundColor Green

@@ -1,0 +1,19 @@
+{
+  "name": "medicalfield-field-desktop",
+  "productName": "MedicalField Socorrista",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/main.cjs",
+  "description": "Aplicativo desktop offline-first do socorrista MedicalField.",
+  "scripts": {
+    "prepare:renderer": "node scripts/prepare-renderer.mjs",
+    "start": "npm run prepare:renderer && electron .",
+    "test": "node --test",
+    "package:win": "npm run prepare:renderer && node scripts/package-win.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "20.3.0",
+    "electron": "45.1.0"
+  }
+}
